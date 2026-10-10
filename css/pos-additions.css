@@ -1,0 +1,33 @@
+/* pos-additions.css – new elements only. Link AFTER base.css and the page's own css.
+   Uses the existing variables and classes (.card, .row, .badge, .btn, .chips, .stat ...). */
+
+/* Stock colour legend + availability filter (cashier catalog, admin products) */
+.stock-legend { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-row .btn.active { background: var(--glass); color: #fff; border-color: var(--glass); }
+
+/* Branch indicator */
+.topbar .branch-tag { background: rgba(255,255,255,.14); color: #fff; padding: 3px 11px; font-size: 13px; }
+.branch-switch { padding: 0 8px; }
+.sidebar .branch-switch label { color: #a9cbc4; margin: 0 0 4px; }
+.sidebar .branch-switch select { background: rgba(255,255,255,.08); color: #fff; border-color: #4b7b73; }
+.sidebar .branch-switch select option { color: var(--ink); }
+
+/* Checkbox rows (inputs are width:100% in base.css) */
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.check-row input { width: auto; }
+.check-row label { margin: 0; color: var(--ink); font-size: 14px; }
+
+/* OCR verification block */
+.ocr-box { margin-top: 12px; padding: 12px; border: 1px dashed #c3c9bd; border-radius: 8px; background: #f7f8f5; }
+.ocr-box label { margin-top: 0; }
+.ocr-box input[type="file"] { background: #fff; }
+.ocr-actions { margin: 10px 0 4px; }
+.rt-hint { margin-top: 12px; font-size: 13px; }
+
+/* Cashier tab badge, admin ledger filters, cards holding stat tiles */
+.tab .badge { margin-left: 6px; }
+.ledger-tools select { width: auto; }
+.card .stat-grid { margin: 12px 0 16px; }
+.stat .value#sync-last { font-size: 24px; }
+textarea { resize: vertical; }

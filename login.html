@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in – Father &amp; Son POS</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/pos-additions.css">
+</head>
+<body class="login-body">
+
+  <main class="login-layout">
+    <section class="login-brand">
+      <img class="login-logo" src="Images/fatherAndSon.png" alt="Father and Son">
+      <p>Point of sale for the perfume counter: checkout, stock and daily sales in one place.</p>
+    </section>
+
+    <section class="login-panel">
+      <form id="login-form" class="card login-card" autocomplete="off">
+        <h2>Sign in</h2>
+        <p class="muted">Use your cashier or admin account.</p>
+
+        <label for="username">Username</label>
+        <input id="username" type="text" required autofocus>
+
+        <label for="password">Password</label>
+        <input id="password" type="password" required>
+
+        <label for="login-branch">Branch</label>
+        <select id="login-branch"><option value="">Select branch</option></select>
+
+        <p id="login-error" class="login-error" hidden>Wrong username or password. Try again.</p>
+
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+
+        <div class="demo-box">
+          <p class="muted">Demo accounts (click to fill in)</p>
+          <button type="button" class="btn btn-ghost btn-sm demo-chip" data-user="cashier" data-pass="cashier123">Cashier</button>
+          <button type="button" class="btn btn-ghost btn-sm demo-chip" data-user="admin" data-pass="admin123">Admin / Manager</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin – Father &amp; Son POS</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin-dashboard.css">
+  <link rel="stylesheet" href="css/pos-additions.css">
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <aside class="sidebar no-print">
+      <div class="brand">
+        <img class="brand-logo" src="Images/fatherAndSon.png" alt="Father and Son">
+        <small>Admin / Manager</small>
+      </div>
+      <div class="branch-switch">
+        <label for="branch-switch">Branch</label>
+        <select id="branch-switch"><option value="all">All branches</option></select>
+      </div>
+      <nav id="side-nav">
+        <button class="nav-btn active" data-section="overview">Overview</button>
+        <button class="nav-btn" data-section="products">Products</button>
+        <button class="nav-btn" data-section="inventory">Stock &amp; restocking</button>
+        <button class="nav-btn" data-section="procurement">Procurement</button>
+        <button class="nav-btn" data-section="ledger">Daily sales ledger</button>
+        <button class="nav-btn" data-section="voids">Void / refund requests <span id="void-count" class="badge badge-warn" hidden>0</span></button>
+        <button class="nav-btn" data-section="returns">Returns &amp; replacements <span id="return-count" class="badge badge-warn" hidden>0</span></button>
+        <button class="nav-btn" data-section="discounts">Discounts &amp; promos</button>
+        <button class="nav-btn" data-section="users">Users</button>
+        <button class="nav-btn" data-section="branches">Branches</button>
+      </nav>
+      <div class="side-user">
+        <span id="user-name"></span>
+        <button id="btn-logout" class="btn btn-ghost btn-sm">Log out</button>
+      </div>
+    </aside>
+
+    <main>
+
+      <!-- OVERVIEW -->
+      <section id="sec-overview" class="section active">
+        <h1>Overview</h1>
+        <div id="stat-cards" class="stat-grid"></div>
+        <div class="card">
+          <h2>Low stock alert</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Product</th><th>Brand</th><th class="r">Stock</th><th>Status</th></tr></thead>
+              <tbody id="low-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="spread"><h2>E-Commerce connection</h2><span id="sync-status" class="badge">Not synced yet</span></div>
+          <div class="stat-grid">
+            <div class="stat"><div class="value" id="sync-pending">0</div><div class="label">Pickup orders waiting</div></div>
+            <div class="stat"><div class="value" id="sync-ready">0</div><div class="label">Ready for pickup</div></div>
+            <div class="stat"><div class="value" id="sync-reserved">0</div><div class="label">Units reserved for pickup</div></div>
+            <div class="stat"><div class="value" id="sync-last">-</div><div class="label">Last sync</div></div>
+          </div>
+          <button id="btn-sync-now" class="btn btn-ghost">Sync now</button>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section id="sec-products" class="section">
+        <div class="spread"><h1>Products</h1><button id="btn-add-product" class="btn btn-primary">Add product</button></div>
+        <div class="card">
+          <div class="stock-legend">
+            <span class="badge badge-ok">In stock</span>
+            <span class="badge badge-warn">Low stock (at or below the threshold)</span>
+            <span class="badge badge-danger">Out of stock</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Image</th><th>SKU</th><th>Name</th><th>Brand</th><th>Category</th><th class="r">Price</th><th class="r">Stock</th><th></th></tr></thead>
+              <tbody id="product-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <h2>Categories</h2>
+            <div id="category-list" class="chips"></div>
+            <div class="inline-add"><input id="new-category" type="text" placeholder="New category"><button id="btn-add-category" class="btn btn-ghost">Add</button></div>
+          </div>
+          <div class="card">
+            <h2>Brands</h2>
+            <div id="brand-list" class="chips"></div>
+            <div class="inline-add"><input id="new-brand" type="text" placeholder="New brand"><button id="btn-add-brand" class="btn btn-ghost">Add</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTORY -->
+      <section id="sec-inventory" class="section">
+        <h1>Stock &amp; restocking</h1>
+        <div class="card">
+          <h2>Restock a product</h2>
+          <div class="row">
+            <div><label for="rs-product">Product</label><select id="rs-product"></select></div>
+            <div><label for="rs-qty">Quantity to add</label><input id="rs-qty" type="number" min="1" step="1"></div>
+            <div><label for="rs-note">Note (optional)</label><input id="rs-note" type="text" placeholder="e.g. Supplier delivery"></div>
+            <button id="btn-restock" class="btn btn-primary">Add stock</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Low-stock threshold</h2>
+          <div class="row">
+            <div><label for="min-stock">Alert when stock is at or below</label><input id="min-stock" type="number" min="1" step="1" value="5"></div>
+            <button id="btn-save-threshold" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Serial number lookup</h2>
+          <div class="row">
+            <div><label for="serial-search">Serial number</label><input id="serial-search" type="text" placeholder="Type or scan a serial"></div>
+            <button id="btn-serial-search" class="btn btn-ghost">Search</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Serial</th><th>Product</th><th>Branch</th><th>Status</th><th>Reference</th></tr></thead>
+              <tbody id="serial-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Inventory log</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Date</th><th>Product</th><th>Movement</th><th class="r">Qty</th><th class="r">Balance</th><th>Reference</th><th>By</th></tr></thead>
+              <tbody id="log-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROCUREMENT -->
+      <section id="sec-procurement" class="section">
+        <h1>Procurement</h1>
+        <div class="card">
+          <h2>Receive a supply delivery</h2>
+          <div class="row">
+            <div><label for="pr-supplier">Supplier</label><select id="pr-supplier"></select></div>
+            <div><label for="pr-ref">Delivery receipt no.</label><input id="pr-ref" type="text"></div>
+            <div><label for="pr-date">Date received</label><input id="pr-date" type="date"></div>
+          </div>
+          <div class="row">
+            <div><label for="pr-product">Product</label><select id="pr-product"></select></div>
+            <div><label for="pr-good">Complete and undamaged</label><input id="pr-good" type="number" min="0" step="1" value="0"></div>
+            <div><label for="pr-damaged">Damaged</label><input id="pr-damaged" type="number" min="0" step="1" value="0"></div>
+          </div>
+          <label for="pr-notes">Damage notes</label>
+          <input id="pr-notes" type="text" placeholder="e.g. 2 bottles with cracked caps">
+          <label for="pr-serials">Serial numbers (one per line)</label>
+          <textarea id="pr-serials" rows="3"></textarea>
+          <div class="modal-actions"><button id="btn-receive" class="btn btn-primary">Record arrival</button></div>
+        </div>
+        <div class="card">
+          <h2>Suppliers</h2>
+          <div id="supplier-list" class="chips"></div>
+          <div class="inline-add"><input id="new-supplier" type="text" placeholder="New supplier"><button id="btn-add-supplier" class="btn btn-ghost">Add</button></div>
+        </div>
+        <div class="card">
+          <h2>Supply records</h2>
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Date</th><th>Delivery no.</th><th>Supplier</th><th>Product</th><th class="r">Good</th><th class="r">Damaged</th><th>Notes</th><th>Status</th><th></th></tr></thead>
+              <tbody id="procurement-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEDGER -->
+      <section id="sec-ledger" class="section">
+        <div class="spread no-print">
+          <h1>Daily sales ledger</h1>
+          <div class="ledger-tools">
+            <select id="ledger-branch"><option value="all">All branches</option></select>
+            <select id="ledger-channel">
+              <option value="all">All channels</option>
+              <option value="pos">POS (in store)</option>
+              <option value="online">Online pickup</option>
+            </select>
+            <input id="ledger-date" type="date">
+            <button id="btn-print-ledger" class="btn btn-ghost">Print ledger</button>
+          </div>
+        </div>
+        <h2 id="ledger-title" class="print-only-title"></h2>
+        <div id="ledger-summary" class="stat-grid"></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Date</th><th>Transaction no.</th><th>Items sold</th><th class="r">Total</th><th>Cashier</th><th>Status</th></tr></thead>
+              <tbody id="ledger-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VOIDS -->
+      <section id="sec-voids" class="section">
+        <h1>Void / refund requests</h1>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Transaction</th><th>Requested by</th><th>When</th><th class="r">Amount</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+              <tbody id="void-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- RETURNS & REPLACEMENTS -->
+      <section id="sec-returns" class="section">
+        <h1>Returns &amp; replacements</h1>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Date</th><th>Transaction</th><th>Type</th><th>Item / serial</th><th>Reason</th><th>Receipt check</th><th>Requested by</th><th>Status</th><th></th></tr></thead>
+              <tbody id="return-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- DISCOUNTS & PROMOS -->
+      <section id="sec-discounts" class="section">
+        <h1>Discounts &amp; promos</h1>
+        <div class="card">
+          <h2>Add a discount</h2>
+          <div class="row">
+            <div><label for="dc-type">Type</label>
+              <select id="dc-type">
+                <option value="promo">Promo code</option>
+                <option value="event">Store event</option>
+                <option value="employee">Employee privilege</option>
+              </select></div>
+            <div><label for="dc-name">Name / code</label><input id="dc-name" type="text"></div>
+            <div><label for="dc-percent">Percent off</label><input id="dc-percent" type="number" min="1" max="100" step="1"></div>
+          </div>
+          <div class="row">
+            <div><label for="dc-from">Valid from</label><input id="dc-from" type="date"></div>
+            <div><label for="dc-to">Valid until</label><input id="dc-to" type="date"></div>
+            <button id="btn-add-discount" class="btn btn-primary">Save discount</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Name / code</th><th>Type</th><th class="r">Percent off</th><th>Valid</th><th>Status</th><th></th></tr></thead>
+              <tbody id="discount-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section id="sec-users" class="section">
+        <h1>Users</h1>
+        <div class="card">
+          <h2>Add a user</h2>
+          <div class="row">
+            <div><label for="nu-name">Full name</label><input id="nu-name" type="text"></div>
+            <div><label for="nu-username">Username</label><input id="nu-username" type="text"></div>
+            <div><label for="nu-password">Password</label><input id="nu-password" type="text"></div>
+            <div><label for="nu-role">Role</label>
+              <select id="nu-role"><option value="cashier">Cashier</option><option value="admin">Admin / Manager</option></select></div>
+            <div><label for="nu-branch">Branch</label><select id="nu-branch"></select></div>
+            <div><label for="nu-employee">Employee discount</label>
+              <select id="nu-employee"><option value="no">Not eligible</option><option value="yes">Eligible</option></select></div>
+            <button id="btn-add-user" class="btn btn-primary">Add user</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Name</th><th>Username</th><th>Role</th><th></th></tr></thead>
+              <tbody id="user-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- BRANCHES -->
+      <section id="sec-branches" class="section">
+        <h1>Branches</h1>
+        <div class="card">
+          <h2>Add a branch</h2>
+          <div class="row">
+            <div><label for="br-name">Branch name</label><input id="br-name" type="text"></div>
+            <div><label for="br-address">Address</label><input id="br-address" type="text"></div>
+            <button id="btn-add-branch" class="btn btn-primary">Add branch</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table class="data">
+              <thead><tr><th>Branch</th><th>Address</th><th>Status</th><th></th></tr></thead>
+              <tbody id="branch-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div id="product-modal" class="modal">
+    <div class="modal-box">
+      <h2 id="pm-title">Add product</h2>
+      <input id="pf-id" type="hidden">
+      <div class="pm-image">
+        <div class="img-holder thumb big"><span>IMAGE</span></div>
+        <p class="muted">Image upload will be added later.</p>
+      </div>
+      <label for="pf-name">Product name</label><input id="pf-name" type="text">
+      <div class="row">
+        <div><label for="pf-sku">SKU</label><input id="pf-sku" type="text"></div>
+        <div><label for="pf-price">Price (₱)</label><input id="pf-price" type="number" min="0" step="0.01"></div>
+      </div>
+      <div class="row">
+        <div><label for="pf-brand">Brand</label><select id="pf-brand"></select></div>
+        <div><label for="pf-category">Category</label><select id="pf-category"></select></div>
+      </div>
+      <div id="pf-stock-box"><label for="pf-stock">Starting stock</label><input id="pf-stock" type="number" min="0" step="1" value="0"></div>
+      <div class="check-row"><input id="pf-serial" type="checkbox"><label for="pf-serial">Track a serial number per bottle</label></div>
+      <div class="check-row"><input id="pf-online" type="checkbox"><label for="pf-online">Show on the online store</label></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="btn-save-product" class="btn btn-primary">Save product</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

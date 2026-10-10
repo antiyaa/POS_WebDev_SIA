@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cashier – Father &amp; Son POS</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/cashier-dashboard.css">
+  <link rel="stylesheet" href="css/pos-additions.css">
+</head>
+<body>
+
+  <header class="topbar no-print">
+    <div class="brand">
+      <img class="brand-logo" src="Images/fatherAndSon.png" alt="Father and Son">
+      <small>Cashier</small>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="checkout">Checkout</button>
+      <button class="tab" data-tab="transactions">My transactions</button>
+      <button class="tab" data-tab="pickups">Pickup orders <span id="pickup-count" class="badge badge-warn" hidden>0</span></button>
+    </nav>
+    <div class="user-box">
+      <span id="branch-name" class="badge branch-tag">Branch: -</span>
+      <span id="user-name"></span>
+      <button id="btn-logout" class="btn btn-ghost btn-sm">Log out</button>
+    </div>
+  </header>
+
+  <div id="low-stock-banner" class="banner no-print" hidden></div>
+
+  <main class="no-print">
+
+    <!-- CHECKOUT -->
+    <section id="tab-checkout" class="tab-panel active">
+      <div class="checkout-layout">
+
+        <div class="catalog">
+          <input id="search" type="search" placeholder="Search by name, brand, category or SKU">
+          <div class="stock-legend">
+            <span class="badge badge-ok">In stock</span>
+            <span class="badge badge-warn">Low stock (5 or fewer)</span>
+            <span class="badge badge-danger">Out of stock</span>
+          </div>
+          <div id="availability-filter" class="filter-row">
+            <button class="btn btn-ghost btn-sm active" data-filter="all">All</button>
+            <button class="btn btn-ghost btn-sm" data-filter="in">In stock</button>
+            <button class="btn btn-ghost btn-sm" data-filter="low">Low stock</button>
+            <button class="btn btn-ghost btn-sm" data-filter="out">Out of stock</button>
+          </div>
+          <div id="product-grid" class="product-grid"></div>
+        </div>
+
+        <aside class="cart card">
+          <h2>Current sale</h2>
+          <div id="cart-items" class="cart-items"></div>
+
+          <label for="serial-input">Serial number (optional)</label>
+          <div class="promo-row">
+            <input id="serial-input" type="text" placeholder="Scan or type bottle serial">
+            <button id="btn-add-serial" class="btn btn-ghost btn-sm" type="button">Attach</button>
+          </div>
+          <p id="serial-list" class="muted"></p>
+
+          <label for="discount-type">Discount</label>
+          <select id="discount-type">
+            <option value="none">No discount</option>
+            <option value="senior">Senior Citizen (20%)</option>
+            <option value="pwd">PWD (20%)</option>
+            <option value="event">Store Event (10%)</option>
+            <option value="promo">Promo code</option>
+            <option value="employee">Employee privilege</option>
+          </select>
+          <div id="promo-row" class="promo-row" hidden>
+            <input id="promo-code" type="text" placeholder="Enter promo code">
+            <button id="btn-apply-promo" class="btn btn-ghost btn-sm">Apply</button>
+          </div>
+          <div id="employee-row" class="promo-row" hidden>
+            <input id="employee-id" type="text" placeholder="Employee username">
+            <button id="btn-apply-employee" class="btn btn-ghost btn-sm">Verify</button>
+          </div>
+
+          <div class="totals">
+            <div class="spread"><span>Subtotal</span><span id="t-subtotal">₱0.00</span></div>
+            <div class="spread"><span id="t-discount-label">Discount</span><span id="t-discount">-₱0.00</span></div>
+            <div class="spread grand"><span>Total</span><span id="t-total">₱0.00</span></div>
+          </div>
+
+          <button id="btn-pay" class="btn btn-accent btn-block" disabled>Go to payment</button>
+          <button id="btn-clear" class="btn btn-ghost btn-block">Clear sale</button>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section id="tab-transactions" class="tab-panel">
+      <div class="card">
+        <div class="spread">
+          <h2>My transactions today</h2>
+          <span id="tx-summary" class="muted"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th>Transaction</th><th>Time</th><th>Items</th><th>Payment</th>
+                <th class="r">Total</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="tx-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PICKUP ORDERS (orders coming from the E-Commerce store) -->
+    <section id="tab-pickups" class="tab-panel">
+      <div class="card">
+        <div class="spread">
+          <h2>Online pickup orders</h2>
+          <span id="pickup-summary" class="muted"></span>
+        </div>
+        <div class="row">
+          <div><label for="pickup-search">Find order</label><input id="pickup-search" type="search" placeholder="Order no. or customer name"></div>
+          <div><label for="pickup-status">Status</label>
+            <select id="pickup-status">
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="ready">Ready for pickup</option>
+              <option value="picked">Picked up</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th>Order no.</th><th>Customer</th><th>Placed</th><th>Items</th><th>Payment</th>
+                <th class="r">Total</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="pickup-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PAYMENT MODAL -->
+  <div id="payment-modal" class="modal">
+    <div class="modal-box">
+      <h2>Payment</h2>
+      <p class="muted">Amount due</p>
+      <p id="pay-total" class="pay-total">₱0.00</p>
+
+      <label for="pay-method">Payment method</label>
+      <select id="pay-method">
+        <option value="cash">Cash</option>
+        <option value="gcash">GCash</option>
+        <option value="card">Card</option>
+      </select>
+
+      <div id="pay-cash-box">
+        <label for="pay-tendered">Cash received</label>
+        <input id="pay-tendered" type="number" min="0" step="0.01">
+        <p class="muted">Change: <strong id="pay-change">₱0.00</strong></p>
+      </div>
+      <div id="pay-ref-box" hidden>
+        <label for="pay-ref">Reference / approval number</label>
+        <input id="pay-ref" type="text">
+      </div>
+      <div id="pay-ocr-box" class="ocr-box" hidden>
+        <label for="pay-proof">Payment proof (screenshot or receipt photo)</label>
+        <input id="pay-proof" type="file" accept="image/*">
+        <div class="spread ocr-actions">
+          <button id="btn-ocr-scan" class="btn btn-ghost btn-sm" type="button">Scan with OCR</button>
+          <span id="ocr-status" class="badge">Not verified</span>
+        </div>
+        <p class="muted">Detected reference: <strong id="ocr-ref">-</strong></p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="btn-confirm-pay" class="btn btn-primary">Complete sale</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIPT MODAL -->
+  <div id="receipt-modal" class="modal">
+    <div class="modal-box">
+      <div id="receipt-content"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-close>Close</button>
+        <button id="btn-print" class="btn btn-primary">Print receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETURN / REPLACEMENT REQUEST MODAL -->
+  <div id="return-modal" class="modal">
+    <div class="modal-box">
+      <h2>Return / replacement</h2>
+      <p id="rt-tx" class="muted">Transaction</p>
+      <input id="rt-tx-id" type="hidden">
+
+      <label for="rt-type">Request type</label>
+      <select id="rt-type">
+        <option value="replacement">Replacement</option>
+        <option value="return">Return (refund)</option>
+      </select>
+
+      <label for="rt-item">Item</label>
+      <select id="rt-item"></select>
+
+      <div class="row">
+        <div><label for="rt-serial">Serial number</label><input id="rt-serial" type="text"></div>
+        <div><label for="rt-reason">Reason</label>
+          <select id="rt-reason">
+            <option value="defective">Defective / leaking</option>
+            <option value="damaged">Damaged bottle</option>
+            <option value="wrong">Wrong item</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="rt-replace-box">
+        <label for="rt-replacement">Replacement product</label>
+        <select id="rt-replacement"></select>
+      </div>
+
+      <label for="rt-note">Notes</label>
+      <input id="rt-note" type="text" placeholder="Describe the issue">
+
+      <div class="ocr-box">
+        <label for="rt-proof">Original receipt (photo or scan)</label>
+        <input id="rt-proof" type="file" accept="image/*">
+        <div class="spread ocr-actions">
+          <button id="btn-rt-ocr" class="btn btn-ghost btn-sm" type="button">Verify receipt with OCR</button>
+          <span id="rt-ocr-status" class="badge">Not verified</span>
+        </div>
+      </div>
+
+      <p class="muted rt-hint">This request goes to the Admin / Manager for approval.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" data-close>Cancel</button>
+        <button id="btn-submit-return" class="btn btn-primary">Submit request</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cashier-dashboard.js"></script>
+</body>
+</html>
